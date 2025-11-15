@@ -24,16 +24,20 @@ private:
 public:
     Channel(int fd, pid_t id) : wfd_(fd), subid_(id)
     {
+        // 字符串拼接，to_string 将基本数据类型转换为 std::string 类型
         name_ = "channle-" + std::to_string(wfd_) + std::to_string(subid_);
     }
 
+    // 向子进程发送任务码
     void Send(int code)
     {
+        // 向wfd_文件中写code
         int n = write(wfd_, &code, sizeof(code));
         (void)n;
     }
     void Close()
     {
+        // 关闭该管道的写端，关键是“该”，每个管道都有对应的写端，每个子进程都有自己的wfd_
         close(wfd_);
     }
     void Wait()
@@ -59,8 +63,10 @@ public:
 
     void Inset(int wfd, pid_t subid)
     {
+        // emplace_back 在容器尾部原地构造对象，避免多余的拷贝或移动，效率更高，是 push_back 的现代替代方案
         channels_.emplace_back(wfd, subid);
     }
+    // 均衡负载选择进程，返回值是引用
     Channel &Select()
     {
         auto &c = channels_[next_];
@@ -100,7 +106,7 @@ const int PROCESS_NUM = 5;
 class ProcessPool
 {
 private:
-    int process_num_;   // 进程管理
+    int process_num_;   // 进程管理，表示此时有多少进程
     ChannelManager cm_; // 管道管理
     TaskManager tm_;    // 管理任务
 

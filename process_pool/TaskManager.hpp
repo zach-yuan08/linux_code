@@ -30,6 +30,7 @@ private:
 public:
     TaskManager()
     {
+        // 种下随机数种子
         srand(time(nullptr));
     }
     void Register(task_t t)
@@ -38,6 +39,7 @@ public:
     }
     int Code()
     {
+        // 随机返回任务码
         return rand() % tasks_.size();
     }
     void Execute(int code)
