@@ -7,9 +7,11 @@
 #include <cstdio>
 #include <cstring>
 #include <functional>
+#include "Log.hpp"
 
 namespace ThreadModlue
 {
+    using namespace LogModule;
     static uint32_t number = 1; // bug
 
     class Thread
@@ -18,7 +20,6 @@ namespace ThreadModlue
     private:
         void EnableDetach()
         {
-            std::cout << "线程被分离了" << std::endl;
             _isdetach = true;
         }
         void EnableRunning()
@@ -55,6 +56,10 @@ namespace ThreadModlue
                 pthread_detach(_tid);
             EnableDetach();
         }
+        std::string Name()
+        {
+            return _name;
+        }
 
         bool Start()
         {
@@ -63,12 +68,10 @@ namespace ThreadModlue
             int n = pthread_create(&_tid, nullptr, Routine, this);
             if (n != 0)
             {
-                std::cerr << "create thread error: " << strerror(n) << std::endl;
                 return false;
             }
             else
             {
-                std::cout << _name << " create success" << std::endl;
                 return true;
             }
         }
@@ -79,13 +82,11 @@ namespace ThreadModlue
                 int n = pthread_cancel(_tid);
                 if (n != 0)
                 {
-                    std::cerr << "create thread error: " << strerror(n) << std::endl;
                     return false;
                 }
                 else
                 {
                     _isrunning = false;
-                    std::cout << _name << " stop" << std::endl;
                     return true;
                 }
             }
@@ -95,17 +96,16 @@ namespace ThreadModlue
         {
             if (_isdetach)
             {
-                std::cout << "你的线程已经是分离的了,不能进行join" << std::endl;
                 return;
             }
             int n = pthread_join(_tid, &res);
             if (n != 0)
             {
-                std::cerr << "create thread error: " << strerror(n) << std::endl;
+                LOG(LogLevel::DEBUG) << "Join线程失败";
             }
             else
             {
-                std::cout << "join success" << std::endl;
+                LOG(LogLevel::DEBUG) << "Join线程成功";
             }
         }
         ~Thread()
