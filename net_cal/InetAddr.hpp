@@ -6,12 +6,9 @@ class InetAddr
 {
 public:
     InetAddr() {}
-    InetAddr(struct sockaddr_in &addr) : _addr(addr)
+    InetAddr(struct sockaddr_in &addr)
     {
-        _port = ntohs(_addr.sin_port);
-        char ipbuffer[64];
-        inet_ntop(AF_INET, &_addr.sin_addr, ipbuffer, sizeof(_addr));
-        _ip = ipbuffer;
+        SetAddr(addr);
     }
     InetAddr(const std::string &ip, uint16_t port) : _ip(ip), _port(port)
     {
@@ -26,6 +23,14 @@ public:
         _addr.sin_family = AF_INET;
         _addr.sin_addr.s_addr = INADDR_ANY;
         _addr.sin_port = htons(_port);
+    }
+    void SetAddr(struct sockaddr_in &addr)
+    {
+        _addr = addr;
+        _port = ntohs(_addr.sin_port);
+        char ipbuffer[64];
+        inet_ntop(AF_INET, &_addr.sin_addr, ipbuffer, sizeof(_addr));
+        _ip = ipbuffer;
     }
     uint16_t Port() { return _port; }
     std::string Ip() { return _ip; }
